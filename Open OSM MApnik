@@ -1,0 +1,108 @@
+package com.example.android.wildguyana;
+
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+
+import org.osmdroid.DefaultResourceProxyImpl;
+import org.osmdroid.ResourceProxy;
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+
+
+public class OpenOSMMapnik extends AppCompatActivity {
+Cursor cursor;
+    double Lat;
+    double Long;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_osmmapnik);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        MapView map=(MapView) findViewById(R.id.mapView);
+        map.setBuiltInZoomControls(true);
+        //map.setUseDataConnection(false);
+
+        map.setTileSource(TileSourceFactory.MAPQUESTOSM);
+
+        IMapController mapController=new MapController(map);
+        //IGeoPoint geoPoint=new GeoPoint(5.000,-58.7500);
+
+        //MyLocationNewOverlay myLocation=new MyLocationNewOverlay(this,map);
+        //map.getOverlays().add(myLocation);
+        //myLocation.enableMyLocation();
+        ResourceProxy resourceProxy=new DefaultResourceProxyImpl((getApplicationContext()));
+        Drawable marker= ContextCompat.getDrawable(this, android.R.drawable.star_big_on);
+        IOverlay iOverlay=new IOverlay(marker,resourceProxy);
+        map.getOverlays().add(iOverlay);
+        int markerWidth = marker.getIntrinsicWidth();
+        int markerHeight = marker.getIntrinsicHeight();
+        marker.setBounds(0, markerHeight, markerWidth, 0);
+
+
+
+        SQliteCoords sQliteCoords=new SQliteCoords(this);
+        SQLiteDatabase sqLiteDatabase=sQliteCoords.getReadableDatabase();
+        cursor=sQliteCoords.getLatLong(sqLiteDatabase);
+        if (cursor.moveToFirst()) {
+            String method="updateLocation";
+            do {
+                Log.e("entered", "do..while");
+
+                String Str_Lat = cursor.getString(1);
+                 Lat = Double.parseDouble(Str_Lat);
+                String Str_Long = cursor.getString(2);
+                 Long = Double.parseDouble(Str_Long);
+                String Sighting = cursor.getString(3);
+                Log.e(Str_Lat,Str_Long);
+                GeoPoint geoPoint=new GeoPoint(Lat,Long);
+                iOverlay.addItem(geoPoint,"poin","poin");
+                map.getOverlays().add(iOverlay);
+
+            } while (cursor.moveToNext());
+
+            Log.e("exited", "do..while");
+
+        }
+
+
+        GPSTracker Gps = new GPSTracker(this);
+        Gps.getLocation();
+     //   IGeoPoint geoPoint2=new GeoPoint(Gps.getLatitude(),Gps.getLongitude());
+
+        mapController.setCenter(new GeoPoint(Lat,Long));
+
+        mapController.setZoom(18);
+
+
+    }
+    public void LatLong(View view){
+        Intent intent=new Intent(this,DisplayLatLong.class);
+        startActivity(intent);
+    }
+}
