@@ -1,0 +1,94 @@
+package com.example.android.wildguyana;
+
+import android.app.Activity;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.RadioButton;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
+public class DisplayLatLong extends AppCompatActivity {
+    TextView LatText,LongText,sight;
+    SQliteCoords sQliteCoords;
+    private Context mContext;
+    SQLiteDatabase sqLiteDatabase;
+    public String Sight;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_display_lat_long);
+
+        GPSTracker Gps = new GPSTracker(this);
+        LatText = (TextView) findViewById(R.id.Lat);
+        LongText=(TextView) findViewById(R.id.Long);
+
+
+        if (Gps.canGetLocation) {
+            Gps.getLocation();
+            LatText.setText(String.valueOf(Gps.getLatitude()));
+            LongText.setText(String.valueOf(Gps.getLongitude()));
+        } else {
+            LatText.setText("Unabletofind");
+            LongText.setText("Unabletofind");
+            System.out.println("Unable");
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+     //LatValue=(TextView)findViewById(R.id.Lat);
+    //LongValue=(TextView)findViewById(R.id.Long);
+    }
+    public void Selection(View view){
+        switch (view.getId()){
+            case R.id.Rad1:
+                Log.e("RB","1");
+                sight=(RadioButton)findViewById(R.id.Rad1);
+                Sight=sight.getText().toString();
+                break;
+            case R.id.Rad2:
+                Log.e("RB","2");
+                sight=(RadioButton)findViewById(R.id.Rad2);
+                Sight=sight.getText().toString();
+
+        }
+
+
+    }
+        public void SAVE(View view){
+            Log.e("BUTTON SAVE","Entered");
+
+        String Lats=LatText.getText().toString();
+        String Longs=LongText.getText().toString();
+            Log.e("LATLONG","SAVED");
+        sQliteCoords =new SQliteCoords(this);
+            Log.e("SQLITECOORDS","Enetred");
+        sqLiteDatabase=sQliteCoords.getWritableDatabase();
+            Log.e("DB","Enetred");
+        sQliteCoords.addLatLong(Lats,Longs,Sight,sqLiteDatabase);
+            Toast.makeText(getBaseContext(),"Data Saved",Toast.LENGTH_LONG).show();
+
+
+
+    }
+}
