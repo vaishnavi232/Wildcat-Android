@@ -1,0 +1,236 @@
+package com.example.android.wildguyana;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.BufferOverflowException;
+
+/**
+ * Created by vaishnavi on 1/25/2016.
+ */
+public class BackgroundProc extends AsyncTask<String,Void,String> {
+    Context context;
+    BackgroundProc(Context context){
+        this.context=context;
+    }
+
+    @Override
+    protected String doInBackground(String... params) {
+        String reg_url="http://wildcatguyana.netau.net/connect.php";
+        String login_url="http://wildcatguyana.netau.net/login.php";
+        String location_url="http://wildcatguyana.netau.net/location.php";
+        String delete_url="http://wildcatguyana.netau.net/delete.php";
+        String method=params[0];
+
+        if(method.equals("SignUp")){
+            Log.e("Entered", "SignUpAsync");
+            String User=params[1];
+            String Uname=params[2];
+            String Upass=params[3];
+            try {
+                URL url=new URL(reg_url);
+                HttpURLConnection httpURLConnection=(HttpURLConnection) url.openConnection();
+                Log.e("Connection", "Opened");
+                httpURLConnection.setRequestMethod("POST");
+                Log.e("requested", "Outputstream");
+                httpURLConnection.setDoOutput(true);
+                Log.e("Connection", "true");
+                OutputStream out;
+                out=httpURLConnection.getOutputStream();
+                Log.e("gotoutputstream", "Outputstream");
+                Log.e("gotoutputstream", "Opened");
+                BufferedWriter bufferedWriter=new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                Log.e("Exited", "BW");
+                String data= URLEncoder.encode("user", "UTF-8") +"="+URLEncoder.encode(User,"UTF-8")+"&"+URLEncoder.encode("user_name","UTF-8") +"="+URLEncoder.encode(Uname,"UTF-8")+"&"+URLEncoder.encode("user_pass","UTF-8") +"="+URLEncoder.encode(Upass,"UTF-8");
+                Log.e("Entered", "data");
+                bufferedWriter.write(data);
+                Log.e("Entered", "Buffeered");
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                Log.e("buffer", "closed");
+                out.close();
+                Log.e("os", "closed");
+
+                InputStream IS=httpURLConnection.getInputStream();
+                Log.e("gotinputstream", "inputstream");
+                IS.close();
+                httpURLConnection.disconnect();
+                Log.e("all", "disconnected");
+
+                return "Registration Success...";
+
+
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    else if(method.equals("SignIn")){
+            Log.e("Entered", "SignInAsync");
+            String Uname=params[1];
+            String Upass=params[2];
+            try {
+                URL Lurl=new URL(login_url);
+                HttpURLConnection httpURLConnection=(HttpURLConnection) Lurl.openConnection();
+                Log.e("Connection", "Opened");
+                httpURLConnection.setRequestMethod("POST");
+                Log.e("requested", "Outputstream");
+                httpURLConnection.setDoOutput(true);
+                Log.e("Connection", "true");
+                OutputStream OS=httpURLConnection.getOutputStream();
+                Log.e("gotoutputstream", "Outputstream");
+               BufferedWriter bufferedWriter=new BufferedWriter(new OutputStreamWriter(OS,"iso-8859-1"));
+                String data=URLEncoder.encode("user_name","UTF-8") +"="+URLEncoder.encode(Uname,"UTF-8")+"&"+URLEncoder.encode("user_pass","UTF-8") +"="+URLEncoder.encode(Upass,"UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                InputStream IS=httpURLConnection.getInputStream();
+                BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(IS,"UTF-8"));
+                String line="";
+                String response="";
+                while((line=bufferedReader.readLine())!=null){
+                    response+=line;
+
+
+                }
+                bufferedReader.close();
+                IS.close();
+                httpURLConnection.disconnect();
+
+                String upToNCharacters = response.substring(0, Math.min(response.length(), 15));
+                Log.e("result", upToNCharacters );
+                return upToNCharacters;
+
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        if (method.equals("Delete")){
+            try {
+                URL url= new URL(delete_url);
+                Log.e("Connection", "Opened");
+                HttpURLConnection httpURLConnection=(HttpURLConnection) url.openConnection();
+                httpURLConnection.setDoInput(true);
+                InputStream IS=httpURLConnection.getInputStream();
+                BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(IS,"UTF-8"));
+                String line="";
+                String response="";
+                while((line=bufferedReader.readLine())!=null){
+                    response+=line;
+
+                }
+                bufferedReader.close();
+                IS.close();
+                httpURLConnection.disconnect();
+
+                String upToNCharacters = response.substring(0, Math.min(response.length(), 15));
+                Log.e("result", upToNCharacters );
+                return upToNCharacters;
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+        if(method.equals("updateLocation")){
+            String uname=params[1];
+            String id =params[2];
+            String Lat =params[3];
+            String Long =params[4];
+            String Sighting =params[5];
+
+            Log.e("Enterd","Background");
+            try {
+                URL url=new URL(location_url);
+                HttpURLConnection httpURLConnection=(HttpURLConnection) url.openConnection();
+                Log.e("Connection", "Opened");
+                httpURLConnection.setRequestMethod("POST");
+                Log.e("requested", "Outputstream");
+                httpURLConnection.setDoOutput(true);
+                Log.e("Connection", "true");
+                OutputStream out;
+                out=httpURLConnection.getOutputStream();
+                Log.e("gotoutputstream", "Outputstream");
+                Log.e("gotoutputstream", "Opened");
+                BufferedWriter bufferedWriter=new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                Log.e("Exited", "BW");
+                String data= URLEncoder.encode("user_name", "UTF-8") +"="+URLEncoder.encode(uname,"UTF-8")+"&"+URLEncoder.encode("id","UTF-8") +"="+URLEncoder.encode(id,"UTF-8")+"&"+URLEncoder.encode("lat","UTF-8") +"="+URLEncoder.encode(Lat,"UTF-8")+"&"+URLEncoder.encode("long","UTF-8") +"="+URLEncoder.encode(Long,"UTF-8")+"&"+URLEncoder.encode("sight","UTF-8") +"="+URLEncoder.encode(Sighting,"UTF-8");
+                Log.e("Entered", "data");
+                bufferedWriter.write(data);
+                Log.e("Entered", "Buffeered");
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                Log.e("buffer", "closed");
+                out.close();
+                Log.e("os", "closed");
+
+                InputStream IS=httpURLConnection.getInputStream();
+                Log.e("gotinputstream", "inputstream");
+                IS.close();
+                httpURLConnection.disconnect();
+                Log.e("all", "disconnected");
+
+                return "Location update Success...";
+
+
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
+        }
+
+        return  null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        if(result.equals("Registration Success..."))
+        {Toast.makeText(context,result,Toast.LENGTH_LONG).show();}
+        else
+        {Toast.makeText(context,result,Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+    }
+
+
+}
