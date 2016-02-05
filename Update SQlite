@@ -1,0 +1,78 @@
+package com.example.android.wildguyana;
+
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+
+public class UpdateDB extends AppCompatActivity {
+    SQliteCoords sQliteCoords;
+    SQLiteDatabase sqLiteDatabase;
+    Cursor cursor;
+    String uname;
+    String curPosition;
+    public final static String MESSAGE_KEY="com.example.android.firstapplication.UserDataKEY";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_update_db);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Intent intent=getIntent();
+        uname=intent.getStringExtra(MESSAGE_KEY);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+    }
+    public void Upload(View view){
+        sQliteCoords=new SQliteCoords(this);
+        sqLiteDatabase=sQliteCoords.getReadableDatabase();
+        cursor=sQliteCoords.getLatLong(sqLiteDatabase);
+        Boolean dummy=true;
+
+        if(dummy){
+            String method="Delete" ;
+            BackgroundProc backgroundProc = new BackgroundProc(this);
+
+            backgroundProc.execute(method);
+            dummy=false;
+        }
+        if (cursor.moveToFirst()) {
+            String method="updateLocation";
+            do {
+                Log.e("entered", "do..while");
+                String id = cursor.getString(0);
+                String Lat = cursor.getString(1);
+                String Long = cursor.getString(2);
+                String Sighting = cursor.getString(3);
+                Log.e("Got ", "data");
+                BackgroundProc backgroundProc = new BackgroundProc(this);
+
+                backgroundProc.execute(method, uname, id, Lat, Long, Sighting);
+                Log.e("Exited", "background");
+                curPosition="entered";
+
+            } while (cursor.moveToNext());
+            Log.e("exited", "do..while");
+
+        }
+
+
+
+
+
+
+    }
+
+}
