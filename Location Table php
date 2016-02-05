@@ -1,0 +1,32 @@
+<?php
+$servername = "mysql7.000webhost.com";
+$username = "a4790559_vaish";
+$password = "vaish1234";
+$dbname="a4790559_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password,$dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} 
+echo "Connected successfully";
+$User_Name=$_POST['user_name'];
+$Str_id=$_POST['id'];
+$id=(int)$Str_id;
+$Str_Lat=$_POST['lat'];
+$Lat=floatval($Str_Lat);
+$Str_Long=$_POST['long'];
+$Long=floatval($Str_Long);
+$Sight=$_POST['sight'];
+@sqldel="TRUNCATE TABLE MyGuests";
+$sql="INSERT INTO MyGuests VALUES('$User_Name','$id','$Lat','$Long','$Sight')";
+mysqli_query($conn,$sqldel);
+if ($conn->query($sql) === TRUE) {
+    echo "New record created successfully";
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
+$conn->close();
+?>
